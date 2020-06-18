@@ -1,3 +1,4 @@
+from django.contrib.auth.models import AnonymousUser
 from django.http import HttpResponseRedirect
 from rest_framework import viewsets, mixins
 from rest_framework.viewsets import GenericViewSet
@@ -25,9 +26,14 @@ class UrlsViewSet(viewsets.ModelViewSet):
             b = a.id + 1
 
         b = base62.encode(b)
+        if self.request.user.is_anonymous:
+            c = None
+        else:
+            c = self.request.user
+
         serializer.save(
             sorturl=b,
-            owner=self.request.user
+            owner=c,
         )
 
 
