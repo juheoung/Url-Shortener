@@ -24,4 +24,3 @@ urlpatterns = [
     path('logout/', Logout.as_view()),
     path('api-token-auth/', CustomAuthToken.as_view()),
 ]
-

@@ -1,0 +1,55 @@
+<html>
+<head>
+<title>views.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6a8759;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+views.py</font>
+</center></td></tr></table>
+<pre><span class="s0">from </span><span class="s1">rest_framework.views </span><span class="s0">import </span><span class="s1">APIView</span>
+<span class="s0">from </span><span class="s1">rest_framework </span><span class="s0">import </span><span class="s1">viewsets</span><span class="s0">, </span><span class="s1">status</span>
+<span class="s0">from </span><span class="s1">django.contrib.auth.models </span><span class="s0">import </span><span class="s1">User</span>
+<span class="s0">from </span><span class="s1">users.serializers </span><span class="s0">import </span><span class="s1">UserSerializer</span>
+<span class="s0">from </span><span class="s1">rest_framework.response </span><span class="s0">import </span><span class="s1">Response</span>
+<span class="s0">from </span><span class="s1">users.pagination </span><span class="s0">import </span><span class="s1">CustomPagination</span>
+<span class="s0">from </span><span class="s1">users.permission </span><span class="s0">import </span><span class="s1">IsOwnerOrReadOnly</span>
+<span class="s0">from </span><span class="s1">rest_framework.authtoken.models </span><span class="s0">import </span><span class="s1">Token</span>
+<span class="s0">from </span><span class="s1">rest_framework.authtoken.views </span><span class="s0">import </span><span class="s1">ObtainAuthToken</span>
+
+
+<span class="s0">class </span><span class="s1">UserViewSet(viewsets.ModelViewSet):</span>
+    <span class="s1">queryset = User.objects.all()</span>
+    <span class="s1">serializer_class = UserSerializer</span>
+    <span class="s1">permission_classes = [IsOwnerOrReadOnly]</span>
+    <span class="s1">pagination_class = CustomPagination</span>
+
+
+<span class="s0">class </span><span class="s1">CustomAuthToken(ObtainAuthToken):</span>
+
+    <span class="s0">def </span><span class="s1">post(self</span><span class="s0">, </span><span class="s1">request</span><span class="s0">, </span><span class="s1">*args</span><span class="s0">, </span><span class="s1">**kwargs):</span>
+        <span class="s1">serializer = self.serializer_class(data=request.data</span><span class="s0">,</span>
+                                           <span class="s1">context={</span><span class="s2">'request'</span><span class="s1">: request})</span>
+        <span class="s1">serializer.is_valid(raise_exception=</span><span class="s0">True</span><span class="s1">)</span>
+        <span class="s1">user = serializer.validated_data[</span><span class="s2">'user'</span><span class="s1">]</span>
+        <span class="s1">token</span><span class="s0">, </span><span class="s1">created = Token.objects.get_or_create(user=user)</span>
+        <span class="s0">return </span><span class="s1">Response({</span>
+            <span class="s2">'token'</span><span class="s1">: token.key</span><span class="s0">,</span>
+            <span class="s2">'user_id'</span><span class="s1">: user.pk</span><span class="s0">,</span>
+        <span class="s1">})</span>
+
+
+<span class="s0">class </span><span class="s1">Logout(APIView):</span>
+    <span class="s0">def </span><span class="s1">get(self</span><span class="s0">, </span><span class="s1">request</span><span class="s0">, </span><span class="s1">format=</span><span class="s0">None</span><span class="s1">):</span>
+        <span class="s1">request.user.auth_token.delete()</span>
+        <span class="s0">return </span><span class="s1">Response(status=status.HTTP_200_OK)</span>
+</pre>
+</body>
+</html>

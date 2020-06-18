@@ -1,15 +1,15 @@
 from rest_framework import serializers
-from rest_framework.serializers import ModelSerializer
 from urls.models import Urls
 
 
-class UrlsSerializer(ModelSerializer):
+class UrlsSerializer(serializers.ModelSerializer):
 
-    sorturl = serializers.URLField(read_only=True)
+    sorturl = serializers.ReadOnlyField()
 
     class Meta:
         model = Urls
         fields = (
+            'id',
             'url',
             'sorturl',
         )
