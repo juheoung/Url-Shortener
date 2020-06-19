@@ -3,13 +3,14 @@ from urls.models import Urls
 
 
 class UrlsSerializer(serializers.ModelSerializer):
-
-    sorturl = serializers.ReadOnlyField()
+    counting = serializers.ReadOnlyField()
+    changeurl = serializers.ReadOnlyField()
 
     class Meta:
         model = Urls
         fields = (
             'id',
             'url',
-            'sorturl',
+            'counting',
+            'changeurl',
         )
