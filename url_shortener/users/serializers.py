@@ -4,7 +4,6 @@ from urls.serializer import UrlsSerializer
 
 
 class UserSerializer(serializers.ModelSerializer):
-
     owners = UrlsSerializer(read_only=True, many=True)
 
     class Meta:
@@ -32,4 +31,3 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(user.password)
         user.save()
         return user
-
