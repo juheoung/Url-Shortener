@@ -1,4 +1,3 @@
-from django.contrib.auth.models import AnonymousUser
 from django.http import HttpResponseRedirect
 from rest_framework import viewsets, mixins
 from rest_framework.viewsets import GenericViewSet
@@ -12,28 +11,33 @@ class UrlsViewSet(viewsets.ModelViewSet):
     queryset = Urls.objects.all()
     serializer_class = UrlsSerializer
 
-    def create(self, request, *args, **kwargs):
-        respone = super().create(request, *args, **kwargs)
-        show_url = f"{request.scheme}://{request.get_host()}/moveurl/{respone.data['sorturl']}"
-        respone.data['sorturl'] = show_url
-        return respone
+    # def create(self, request, *args, **kwargs):
+    #     respone = super().create(request, *args, **kwargs)
+    #     show_url = f"{request.scheme}://{request.get_host()}/moveurl/{respone.data['sorturl']}"
+    #     respone.data['sorturl'] = show_url
+    #
+    #     return respone
 
     def perform_create(self, serializer):
-        a = Urls.objects.last()
-        if a is None:
-            b = 1
+        last_id = Urls.objects.last()
+        if last_id is None:
+            user_id = 1
         else:
-            b = a.id + 1
+            user_id = last_id.id + 1
 
-        b = base62.encode(b)
+        user_id = base62.encode(user_id)
+
+        change_url = f"{self.request.scheme}://{self.request.get_host()}/moveurl/{user_id}"
+
         if self.request.user.is_anonymous:
-            c = None
+            user_name = None
         else:
-            c = self.request.user
+            user_name = self.request.user
 
         serializer.save(
-            sorturl=b,
-            owner=c,
+            owner=user_name,
+            sorturl=user_id,
+            changeurl=change_url,
         )
 
 
@@ -45,4 +49,6 @@ class MoveUrlsViewSet(mixins.RetrieveModelMixin, GenericViewSet):
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
+        instance.counting += 1
+        instance.save()
         return HttpResponseRedirect(serializer.data['url'])
